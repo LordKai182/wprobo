@@ -66,14 +66,18 @@ async function stages(client, message, userdata) {
             sendWppMessage(client, message.from, 'Digite seu *CPF*:');
             userStages[message.from] = 'cpf';
         } else {
-             
-                userdata['cpf'] = (message.body).replace(/[^\d]+/g, '');
-                firebasedb.update(userdata);
-                sendWppMessage(client, message.from, 'Obrigada por informar seu CPF: ' + message.body);
-                sendWppMessage(client, message.from, 'Fim');
-                userStages[message.from] = 'fim';
+                if(TestaCPF((message.body).replace(/[^\d]+/g, ''))){
+                    userdata['cpf'] = (message.body).replace(/[^\d]+/g, '');
+                    firebasedb.update(userdata);
+                    sendWppMessage(client, message.from, 'Obrigada por informar seu CPF: ' + message.body);
+                    sendWppMessage(client, message.from, 'Fim');
+                    userStages[message.from] = 'fim';
+                }else{
+                    sendWppMessage(client, message.from, 'Obrigada por informar seu CPF: ' + message.body);
+                    sendWppMessage(client, message.from, 'Fim');
+                }
+               
             
-
             
         }
 
@@ -102,4 +106,25 @@ async function saveUser(phone) {
     }
     let newUser = firebasedb.save(user);
     return newUser;
+}
+
+function TestaCPF(strCPF) {
+    var Soma;
+    var Resto;
+    Soma = 0;
+  if (strCPF == "00000000000") return false;
+
+  for (i=1; i<=9; i++) Soma = Soma + parseInt(strCPF.substring(i-1, i)) * (11 - i);
+  Resto = (Soma * 10) % 11;
+
+    if ((Resto == 10) || (Resto == 11))  Resto = 0;
+    if (Resto != parseInt(strCPF.substring(9, 10)) ) return false;
+
+  Soma = 0;
+    for (i = 1; i <= 10; i++) Soma = Soma + parseInt(strCPF.substring(i-1, i)) * (12 - i);
+    Resto = (Soma * 10) % 11;
+
+    if ((Resto == 10) || (Resto == 11))  Resto = 0;
+    if (Resto != parseInt(strCPF.substring(10, 11) ) ) return false;
+    return true;
 }
