@@ -73,8 +73,9 @@ async function stages(client, message, userdata) {
                     sendWppMessage(client, message.from, 'Fim');
                     userStages[message.from] = 'fim';
                 }else{
-                    sendWppMessage(client, message.from, 'Obrigada por informar seu CPF: ' + message.body);
-                    sendWppMessage(client, message.from, 'Fim');
+                    sendWppMessage(client, message.from, ' CPF Invalido: ' + message.body);
+                    userStages[message.from] = 'cpf';
+                    sendWppMessage(client, message.from, 'Digite seu *CPF*:');
                 }
                
             
