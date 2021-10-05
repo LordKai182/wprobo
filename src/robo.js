@@ -1,6 +1,5 @@
 const wppconnect = require('@wppconnect-team/wppconnect');
 const firebasedb = require('./firebase')
-import { cpf } from 'cpf-cnpj-validator'; 
 
 var userStages = [];
 var NotuserStages = [];
@@ -67,15 +66,13 @@ async function stages(client, message, userdata) {
             sendWppMessage(client, message.from, 'Digite seu *CPF*:');
             userStages[message.from] = 'cpf';
         } else {
-             if(cpf.isValid((message.body).replace(/[^\d]+/g, ''))){
+             
                 userdata['cpf'] = (message.body).replace(/[^\d]+/g, '');
                 firebasedb.update(userdata);
                 sendWppMessage(client, message.from, 'Obrigada por informar seu CPF: ' + message.body);
                 sendWppMessage(client, message.from, 'Fim');
                 userStages[message.from] = 'fim';
-             }else{
-                sendWppMessage(client, message.from, 'CPF INVALIDO');
-             }
+            
 
             
         }
