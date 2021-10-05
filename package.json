@@ -11,7 +11,6 @@
   "license": "ISC",
   "dependencies": {
     "@wppconnect-team/wppconnect": "^1.9.1",
-    "cpf-cnpj-validator": "^1.0.3",
     "firebase-admin": "^9.12.0"
   }
 }
