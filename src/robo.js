@@ -48,8 +48,10 @@ async function stagesNotUser(client, message, phone) {
         sendWppMessage(client, message.from, '1 - CADASTRAR');
         sendWppMessage(client, message.from, '2 - SAIR');
         sendWppMessage(client, message.from, '3 - SOBRE O SORTEIO');
+        sendWppMessage(client, message.from, '4 - COMO ESTA ?');
+        sendWppMessage(client, message.from, '5 - TYPPING');
         NotuserStages[message.from] = 'opcao';
-    }else{
+    } else {
         switch (message.body) {
             case "1":
                 sendWppMessage(client, message.from, 'Selecionado - CADASTRAR');
@@ -57,19 +59,66 @@ async function stagesNotUser(client, message, phone) {
                 stages(client, message, userdata);
                 break;
             case "2":
-                sendWppMessage(client, message.from, 'Selecionado - SAIR');
+                sendWppMessage(client, message.from, 'Obrigado por entrar em contato, aguardo você em breve.');
                 NotuserStages[message.from] = undefined;
                 break;
             case "3":
                 sendWppMessage(client, message.from, 'Selecionado - SOBRE O SORTEIO');
+                await client.sendMessageOptions(message.from, 'isso aqui é um teste', {
+                    title: 'Sobre o Sorteio',
+                    footer: 'Escolha uma opção abaixo',
+                    isDynamicReplyButtonsMsg: true,
+                    dynamicReplyButtons: [
+                        {
+                            buttonId: 'idSim',
+                            buttonText: {
+                                displayText: 'SIM',
+                            },
+                            type: 1,
+                        },
+                        {
+                            buttonId: 'idNao',
+                            buttonText: {
+                                displayText: 'NÃO',
+                            },
+                            type: 1,
+                        },
+                    ],
+                });
                 break;
+            case "4":
+                let info = await client.getHostDevice();
+                let messa = `_*Connection info*_\n\n`;
+                messa += `*User name:* ${info.pushname}\n`;
+                messa += `*Number:* ${info.wid.user}\n`;
+                messa += `*Battery:* ${info.battery}\n`;
+                messa += `*Plugged:* ${info.plugged}\n`;
+                messa += `*Device Manufacturer:* ${info.phone.device_manufacturer}\n`;
+                messa += `*WhatsApp version:* ${info.phone.wa_version}\n`;
+                client.sendText(message.from, messa);
+                break
+            case "5":
+                const option = message.body.split(' ')[1];
+                if (option == 'true') {
+                    // Start typing...
+                    await client.startTyping(message.from);
+                } else {
+                    // Stop typing
+                    await client.stopTyping(message.from);
+                }
+                break
             default:
-                sendWppMessage(client, message.from, 'Opção não encontrada');
+                sendWppMessage(client, message.from, 'Opção não encontrada, as opções são:');
+                sendWppMessage(client, message.from, '1 - CADASTRAR');
+                sendWppMessage(client, message.from, '2 - SAIR');
+                sendWppMessage(client, message.from, '3 - SOBRE O SORTEIO');
+                sendWppMessage(client, message.from, '4 - COMO ESTA ?');
+                sendWppMessage(client, message.from, '5 - TYPPING');
                 break;
         }
     }
-    
-    
+
+
 }
 
 async function stages(client, message, userdata) {
@@ -95,6 +144,7 @@ async function stages(client, message, userdata) {
         } else {
             if (TestaCPF((message.body).replace(/[^\d]+/g, ''))) {
                 userdata['cpf'] = (message.body).replace(/[^\d]+/g, '');
+                userdata['bilhetes'] = []
                 firebasedb.update(userdata);
                 sendWppMessage(client, message.from, 'Obrigada por informar seu CPF: ' + message.body);
                 sendWppMessage(client, message.from, 'Fim');
@@ -113,7 +163,52 @@ async function stages(client, message, userdata) {
         if (userStages[message.from] == undefined) {
             userStages[message.from] = 'fim';
         }
-        sendWppMessage(client, message.from, 'Fim');
+        switch (message.body) {
+            case "COMPRAR BILHETES":
+                sendWppMessage(client, message.from, 'voce escolheu COMPRAR BILHETES');
+                let bilhe = '123487'
+                sendWppMessage(client, message.from, 'Voce Comprou o Bilhete Nº:' + bilhe);
+                userdata['bilhetes'].push(bilhe)
+                sendWppMessage(client, message.from, 'Não esqueça que quanto mais bilhete você tiver mais as chances de ganhar!! Boa sorte.');
+                firebasedb.update(userdata);
+
+                break;
+            case "MEUS BILHETES":
+                sendWppMessage(client, message.from, 'voce escolheu MEUS BILHETES');
+                let bilhetes = userdata['bilhetes']
+                sendWppMessage(client, message.from, 'Seus Bilhetes são:');
+                count = 1
+                bilhetes.map(b => {
+                    sendWppMessage(client, message.from, count +" - "+ b);
+                    count ++
+                })
+                break;
+            default:
+                sendWppMessage(client, message.from, 'Olá ' + userdata['nome'] + ' Bom te ver por aqui.');
+                await client.sendMessageOptions(message.from, 'isso aqui é um teste', {
+                    title: 'Comprar um bilhete ?',
+                    footer: 'Escolha uma opção abaixo',
+                    isDynamicReplyButtonsMsg: true,
+                    dynamicReplyButtons: [
+                        {
+                            buttonId: 'idComprarB',
+                            buttonText: {
+                                displayText: 'COMPRAR BILHETES',
+                            },
+                            type: 1,
+                        },
+                        {
+                            buttonId: 'idMeusB',
+                            buttonText: {
+                                displayText: 'MEUS BILHETES',
+                            },
+                            type: 1,
+                        },
+                    ],
+                });
+                break;
+        }
+
     }
 }
 
