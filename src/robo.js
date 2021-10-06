@@ -183,6 +183,11 @@ async function stages(client, message, userdata) {
                     count ++
                 })
                 break;
+                case "SAIR":
+                    sendWppMessage(client, message.from, 'Obrigado por entrar em contato, aguardo você em breve.');
+                    NotuserStages[message.from] = undefined;
+                    userStages[message.from] = undefined;
+                    break;
             default:
                 sendWppMessage(client, message.from, 'Olá ' + userdata['nome'] + ' Bom te ver por aqui.');
                 await client.sendMessageOptions(message.from, 'isso aqui é um teste', {
@@ -204,6 +209,14 @@ async function stages(client, message, userdata) {
                             },
                             type: 1,
                         },
+                        {
+                            buttonId: 'idSair',
+                            buttonText: {
+                                displayText: 'SAIR',
+                            },
+                            type: 1,
+                        },
+                        
                     ],
                 });
                 break;
